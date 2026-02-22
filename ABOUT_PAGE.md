@@ -20,14 +20,11 @@ This newsletter offers serious, balanced commentary on Vatican II, the magisteri
 
 **The Bookshelf** — Reviews and reflections on Catholic books old and new, from patristic texts and conciliar documents to the latest in ecclesiology and theology.
 
-**Ut Unum Sint** — Ecumenism and Christian unity — Catholic-Orthodox relations, the quest for communion, and the theology of dialogue. Named for John Paul II's 1995 encyclical on the commitment to ecumenism.
-
+**Ut Unum Sint** — Ecumenism, interreligious dialogue, and Christian unity — Catholic-Orthodox relations, encounters with Judaism, Islam, and Protestantism, and the theology of dialogue across all traditions. Named for John Paul II's 1995 encyclical on the commitment to ecumenism.
 
 **From the Foundation** — News from the Likoudis Legacy Foundation: conference announcements, the writings of Dr. James Likoudis, updates on the *Kydones Review* journal, and institutional developments.
 
 **Nature & Grace** — Personal essays on faith, culture, and the whole miracle of being Catholic in the modern world. Film, music, food, travel, the Catholic internet, and whatever else catches my eye. Ported from my column at Patheos.
-
-**Ad Gentes** — Interreligious dialogue with Judaism, Islam, Protestantism, and the secular world. Named for the Second Vatican Council's Decree on the Missionary Activity of the Church. Where Ut Unum Sint faces across toward Orthodox and Eastern Christians, Ad Gentes faces outward toward all people of goodwill.
 
 **Editor's Desk** — Brief editorial takes, reactions to the news cycle, and what I'm thinking this week. Short-form and opinionated.
 
