@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Tradition & Renewal — Daily Roundup Generator
-Scans RSS feeds and news sources, categorizes stories into your 10 sections,
+Scans RSS feeds and news sources, categorizes stories into your 11 sections,
 and generates a formatted daily briefing ready to paste into Substack.
 
 Run daily via cron on your DigitalOcean droplet (104.248.1.49):
@@ -29,7 +29,7 @@ from dateutil import parser as dateparser
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
 MODEL = "claude-sonnet-4-5-20250929"
 
-# Your 10 sections with keywords for classification
+# Your 11 sections with keywords for classification
 SECTIONS = {
     "Magisterial Monday": {
         "keywords": ["pope", "encyclical", "apostolic", "dicastery", "magisterium",
@@ -64,13 +64,13 @@ SECTIONS = {
                      "holy see diplomacy", "concordat"],
         "description": "Vatican governance, appointments, diplomacy"
     },
-    "The Legacy Shelf": {
+    "The Bookshelf": {
         "keywords": ["book review", "new book", "catholic book", "theology book",
                      "publication", "publisher", "author", "memoir", "intellectual",
                      "patristic", "thomist", "scholarship"],
         "description": "Book reviews, intellectual tradition"
     },
-    "Kydones Review": {
+    "Ut Unum Sint": {
         "keywords": ["orthodox", "ecumenism", "eastern catholic", "patriarchate",
                      "constantinople", "moscow patriarchate", "filioque", "schism",
                      "catholic orthodox", "byzantine", "eastern church", "unity",
@@ -89,6 +89,10 @@ SECTIONS = {
                      "pilgrimage", "personal faith", "testimony", "conversion",
                      "catholic life", "parish", "community"],
         "description": "Faith, culture, personal essays"
+    },
+    "From the Foundation": {
+        "description": "News from the Likoudis Legacy Foundation — conference announcements, writings of Dr. James Likoudis, Kydones Review journal updates, institutional developments.",
+        "keywords": ["likoudis", "foundation", "conference", "orientale lumen", "kydones", "james likoudis", "ecumenism conference", "byzantine", "schism", "501c3", "nonprofit"]
     },
     "Editor's Desk": {
         "keywords": ["breaking", "controversy", "scandal", "statement", "reaction",
@@ -211,7 +215,7 @@ def generate_roundup_with_claude(articles):
                                for name, cfg in SECTIONS.items()])
     
     prompt = f"""You are the editorial assistant for Tradition & Renewal, a Catholic Substack 
-with 10 sections. Your job is to produce a daily news roundup.
+with 11 sections. Your job is to produce a daily news roundup.
 
 SECTIONS:
 {sections_desc}
