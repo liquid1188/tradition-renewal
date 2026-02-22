@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Tradition & Renewal — Daily Roundup Generator
-Scans RSS feeds and news sources, categorizes stories into your 11 sections,
+Scans RSS feeds and news sources, categorizes stories into your 10 sections,
 and generates a formatted daily briefing ready to paste into Substack.
 
 Run daily via cron on your DigitalOcean droplet (104.248.1.49):
@@ -29,7 +29,7 @@ from dateutil import parser as dateparser
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
 MODEL = "claude-sonnet-4-5-20250929"
 
-# Your 11 sections with keywords for classification
+# Your 10 sections with keywords for classification
 SECTIONS = {
     "Magisterial Monday": {
         "keywords": ["pope", "encyclical", "apostolic", "dicastery", "magisterium",
@@ -76,13 +76,6 @@ SECTIONS = {
                      "catholic orthodox", "byzantine", "eastern church", "unity",
                      "tomos", "autocephaly"],
         "description": "Ecumenism, Orthodox-Catholic dialogue"
-    },
-    "Ad Gentes": {
-        "keywords": ["interreligious", "interfaith", "islam", "muslim", "jewish",
-                     "judaism", "protestant", "evangelical", "anglican", "buddhist",
-                     "hindu", "dialogue", "missionary", "evangelization",
-                     "nostra aetate", "religious freedom"],
-        "description": "Interreligious dialogue"
     },
     "Nature & Grace": {
         "keywords": ["catholic culture", "film", "music", "art", "literature",
@@ -215,7 +208,7 @@ def generate_roundup_with_claude(articles):
                                for name, cfg in SECTIONS.items()])
     
     prompt = f"""You are the editorial assistant for Tradition & Renewal, a Catholic Substack 
-with 11 sections. Your job is to produce a daily news roundup.
+with 10 sections. Your job is to produce a daily news roundup.
 
 SECTIONS:
 {sections_desc}
