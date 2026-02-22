@@ -18,13 +18,16 @@ This newsletter offers serious, balanced commentary on Vatican II, the magisteri
 
 **Papal Dispatch** — Vatican governance, papal appointments, curial diplomacy, and the politics of the Holy See. Not what the Pope teaches — that's Magisterial Monday — but what he *does* and what it means.
 
-**The Legacy Shelf** — Reviews and reflections on Catholic books old and new, from patristic texts and conciliar documents to the latest in ecclesiology and theology.
+**The Bookshelf** — Reviews and reflections on Catholic books old and new, from patristic texts and conciliar documents to the latest in ecclesiology and theology.
 
-**Kydones Review** — Ecumenism, interreligious dialogue, and Christian unity — featuring work from our fellows and contributors at the Likoudis Legacy Foundation. Named for Demetrios Kydones, the 14th-century Byzantine scholar who bridged East and West.
+**Ut Unum Sint** — Ecumenism and Christian unity — Catholic-Orthodox relations, the quest for communion, and the theology of dialogue. Named for John Paul II's 1995 encyclical on the commitment to ecumenism.
+
+
+**From the Foundation** — News from the Likoudis Legacy Foundation: conference announcements, the writings of Dr. James Likoudis, updates on the *Kydones Review* journal, and institutional developments.
 
 **Nature & Grace** — Personal essays on faith, culture, and the whole miracle of being Catholic in the modern world. Film, music, food, travel, the Catholic internet, and whatever else catches my eye. Ported from my column at Patheos.
 
-**Ad Gentes** — Interreligious dialogue with Judaism, Islam, Protestantism, and the secular world. Named for the Second Vatican Council's Decree on the Missionary Activity of the Church. Where Kydones Review faces across toward Orthodox and Eastern Christians, Ad Gentes faces outward toward all people of goodwill.
+**Ad Gentes** — Interreligious dialogue with Judaism, Islam, Protestantism, and the secular world. Named for the Second Vatican Council's Decree on the Missionary Activity of the Church. Where Ut Unum Sint faces across toward Orthodox and Eastern Christians, Ad Gentes faces outward toward all people of goodwill.
 
 **Editor's Desk** — Brief editorial takes, reactions to the news cycle, and what I'm thinking this week. Short-form and opinionated.
 
@@ -40,7 +43,7 @@ The name reflects a conviction: that authentic Catholic reform is never a ruptur
 
 ## About the Author
 
-**Andrew Likoudis** is a Catholic scholar and the founder of the Likoudis Legacy Foundation, a 501(c)(3) research institute dedicated to ecumenism and interreligious dialogue. He serves as editor-in-chief of *The Kydones Review* and holds degrees from Towson University and the Community College of Baltimore County, with graduate studies in Catholic Studies at Franciscan University of Steubenville.
+**Andrew Likoudis** is a Catholic scholar and the founder of the Likoudis Legacy Foundation, a 501(c)(3) research institute dedicated to ecumenism and interreligious dialogue. He serves as editor-in-chief of *The Ut Unum Sint* and holds degrees from Towson University and the Community College of Baltimore County, with graduate studies in Catholic Studies at Franciscan University of Steubenville.
 
 He is the editor of *Faith in Crisis: Critical Dialogues in Catholic Traditionalism, Church Authority, and Reform* (En Route Books, 2025), a 40-chapter volume featuring a foreword by Rocco Buttiglione and contributions from Cardinal Robert Sarah and over thirty scholars and theologians. Cardinal Odilo Pedro Scherer of São Paulo, Cardinal Cristophe Pierre (Papal Nuncio to the United States), and Archbishop Joseph Naumann have endorsed his work.
 
@@ -66,7 +69,7 @@ Learn more at [likoudislegacy.com](https://likoudislegacy.com).
 
 - **Monday** — Magisterial Monday (every week)
 - **Wednesday** — Rotating between Liturgy, AI & Catholic Anthropology, Council & Crisis, Papal Dispatch, and Ad Gentes
-- **Friday** — Rotating between The Legacy Shelf, Kydones Review, Nature & Grace, and timely essays
+- **Friday** — Rotating between The Bookshelf, Ut Unum Sint, Nature & Grace, From the Foundation, and timely essays
 - **As needed** — Editor's Desk (short takes when the news demands a response)
 
 ---
