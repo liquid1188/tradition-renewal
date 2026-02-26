@@ -28,9 +28,9 @@ from dateutil import parser as dateparser
 
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
-RESEND_API_KEY    = os.getenv("RESEND_API_KEY", "")
-ROUNDUP_TO        = os.getenv("ROUNDUP_TO",   "alikoudis@likoudislegacy.com")
-ROUNDUP_FROM      = os.getenv("ROUNDUP_FROM", "T&R Briefing <briefing@traditionandrenewal.com>")
+RESEND_API_KEY    = os.getenv("RESEND_API_KEY", "re_CdzhHJcV_AEGRJAgr8a3JVYo83iZsM7j7")
+ROUNDUP_TO        = os.getenv("ROUNDUP_TO", "liquid.1188@gmail.com")
+ROUNDUP_FROM      = os.getenv("ROUNDUP_FROM", "T&R Briefing <onboarding@resend.dev>")
 MODEL = "claude-sonnet-4-6"
 
 # Your 10 sections with keywords for classification
