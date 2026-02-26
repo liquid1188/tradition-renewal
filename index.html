@@ -285,6 +285,44 @@
         .schedule-desc { font-size: .92rem; line-height: 1.55; }
 
         /* CTA */
+        /* LATEST POSTS */
+        .latest-posts { padding: 4rem 1.5rem; }
+        .latest-inner { max-width: 1000px; margin: 0 auto; }
+        .latest-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-top: 2rem;
+        }
+        .latest-card {
+            background: #fff; border-radius: 8px; overflow: hidden;
+            border: 1px solid var(--border); transition: all .3s;
+            display: flex; flex-direction: column;
+        }
+        .latest-card:hover { transform: translateY(-3px); box-shadow: 0 12px 30px -10px rgba(0,0,0,.12); }
+        .latest-card a { text-decoration: none; color: inherit; display: flex; flex-direction: column; height: 100%; }
+        .latest-card-body { padding: 1.25rem 1.25rem 1rem; flex: 1; display: flex; flex-direction: column; }
+        .latest-card-section {
+            font-family: 'Lato', sans-serif; font-size: .6rem; letter-spacing: .12em;
+            text-transform: uppercase; color: var(--gold-dark); margin-bottom: .4rem;
+        }
+        .latest-card-title {
+            font-family: 'Cormorant Garamond', serif; font-size: 1.05rem; font-weight: 600;
+            color: var(--text); line-height: 1.35; margin-bottom: .5rem;
+        }
+        .latest-card-excerpt {
+            font-size: .8rem; color: var(--text-light); line-height: 1.55; flex: 1;
+        }
+        .latest-card-date {
+            font-family: 'Lato', sans-serif; font-size: .65rem; color: var(--text-muted);
+            margin-top: .75rem; padding-top: .6rem; border-top: 1px solid var(--border);
+        }
+        .latest-loading {
+            grid-column: span 3; text-align: center; padding: 2rem;
+            font-family: 'Lato', sans-serif; font-size: .85rem; color: var(--text-muted);
+        }
+        @media(max-width:700px) {
+            .latest-grid { grid-template-columns: 1fr; }
+            .latest-loading { grid-column: span 1; }
+        }
+
         .cta-section {
             padding: 5rem 1.5rem; text-align: center;
             background: linear-gradient(180deg, var(--ivory), var(--cream));
@@ -330,6 +368,7 @@
             <span></span><span></span><span></span>
         </div>
         <ul class="nav-links">
+            <li><a href="#latest">Latest</a></li>
             <li><a href="#sections">Sections</a></li>
             <li><a href="#about">About</a></li>
             <li><a href="#schedule">Schedule</a></li>
@@ -355,6 +394,24 @@
         <p class="hero-byline">
             By <a href="https://andrewlikoudis.com" target="_blank">Andrew Likoudis</a> · Likoudis Legacy Foundation
         </p>
+    </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- LATEST POSTS -->
+<section class="latest-posts" id="latest">
+    <div class="latest-inner">
+        <div class="sections-header fade-in">
+            <h2>Latest Posts</h2>
+            <p>Recent essays from the newsletter.</p>
+        </div>
+        <div class="latest-grid" id="latestGrid">
+            <div class="latest-loading" id="latestLoading">Loading recent posts…</div>
+        </div>
+        <div style="text-align:center;margin-top:1.5rem">
+            <a href="https://traditionandrenewal.substack.com/archive" class="btn-secondary" target="_blank" style="font-size:.75rem">View Full Archive on Substack →</a>
+        </div>
     </div>
 </section>
 
@@ -543,6 +600,40 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
         document.querySelector('.nav-links').classList.remove('open');
     });
 });
+
+// Fetch Substack RSS
+(async function() {
+    const grid = document.getElementById('latestGrid');
+    const loading = document.getElementById('latestLoading');
+    try {
+        const res = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Ftraditionandrenewal.substack.com%2Ffeed&count=6');
+        const data = await res.json();
+        if (data.status === 'ok' && data.items && data.items.length > 0) {
+            loading.remove();
+            data.items.slice(0, 6).forEach(item => {
+                const date = new Date(item.pubDate);
+                const dateStr = date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+                const excerpt = item.description
+                    ? item.description.replace(/<[^>]*>/g, '').substring(0, 140).trim() + '…'
+                    : '';
+                const card = document.createElement('div');
+                card.className = 'latest-card fade-in visible';
+                card.innerHTML = `<a href="${item.link}" target="_blank">
+                    <div class="latest-card-body">
+                        <div class="latest-card-title">${item.title}</div>
+                        <div class="latest-card-excerpt">${excerpt}</div>
+                        <div class="latest-card-date">${dateStr}</div>
+                    </div>
+                </a>`;
+                grid.appendChild(card);
+            });
+        } else {
+            loading.textContent = 'Visit the archive on Substack →';
+        }
+    } catch(e) {
+        loading.textContent = 'Visit the archive on Substack →';
+    }
+})();
 </script>
 </body>
 </html>
