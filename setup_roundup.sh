@@ -23,50 +23,49 @@ pip3 install feedparser requests anthropic python-dateutil --break-system-packag
 
 # 3. Copy the roundup script
 echo ""
-echo "3. Setting up roundup script..."
-# (You'll SCP daily_roundup.py to /opt/t-and-r/)
+echo "3. Copying roundup script..."
+cp daily_roundup.py /opt/t-and-r/daily_roundup.py
+echo "  ✓ Copied to /opt/t-and-r/daily_roundup.py"
 
-# 4. Set up environment variable
+# 4. Environment variables — MUST be in /etc/environment, not .bashrc
+# Cron runs in a minimal shell that never loads .bashrc. /etc/environment
+# is sourced system-wide and is the correct place for cron-accessible vars.
 echo ""
-echo "4. Setting up API key..."
+echo "4. Setting environment variables..."
 echo ""
-echo "  Run this command with your actual Anthropic API key:"
-echo "  echo 'export ANTHROPIC_API_KEY=your_key_here' >> ~/.bashrc"
-echo "  source ~/.bashrc"
+echo "  Run the following with your actual keys:"
+echo ""
+echo "  sudo tee -a /etc/environment << 'EOF'"
+echo "  ANTHROPIC_API_KEY=your_anthropic_key_here"
+echo "  RESEND_API_KEY=your_resend_key_here"
+echo "  ROUNDUP_TO=alikoudis@likoudislegacy.com"
+echo "  EOF"
+echo ""
+echo "  Then: source /etc/environment"
+echo ""
+echo "  *** /etc/environment is what cron reads — NOT .bashrc ***"
 
-# 5. Set up cron job — runs at 6 AM EST every day
+# 5. Cron job — 6 AM EST = 11:00 UTC
+# The '. /etc/environment;' prefix loads the env vars into cron's shell.
 echo ""
 echo "5. Setting up cron job..."
-CRON_CMD="0 11 * * * cd /opt/t-and-r && /usr/bin/python3 daily_roundup.py >> /opt/t-and-r/roundups/cron.log 2>&1"
+CRON_CMD="0 11 * * * . /etc/environment; cd /opt/t-and-r && /usr/bin/python3 daily_roundup.py >> /opt/t-and-r/roundups/cron.log 2>&1"
 
-# Check if cron job already exists
 if crontab -l 2>/dev/null | grep -q "daily_roundup.py"; then
-    echo "  Cron job already exists, skipping"
+    echo "  Replacing existing cron entry with updated version..."
+    (crontab -l 2>/dev/null | grep -v "daily_roundup.py"; echo "$CRON_CMD") | crontab -
 else
     (crontab -l 2>/dev/null; echo "$CRON_CMD") | crontab -
-    echo "  ✓ Cron job added: daily at 6 AM EST (11 UTC)"
 fi
-
-# 6. Optional: email delivery setup
-echo ""
-echo "6. Email delivery (optional)..."
-echo "  To get roundups emailed to you, install msmtp:"
-echo "  sudo apt install msmtp msmtp-mta"
-echo "  Then configure ~/.msmtprc with your SMTP settings"
-echo ""
-echo "  Add this line after save_roundup() in daily_roundup.py:"
-echo '  os.system(f"cat {filepath} | mail -s \"T&R Daily Briefing\" andrew@likoudislegacy.com")'
+echo "  ✓ Cron set: daily at 6 AM EST (11:00 UTC)"
+echo "  ✓ Env vars sourced via: . /etc/environment"
 
 echo ""
 echo "=================================="
-echo "  Setup complete!"
-echo ""
-echo "  Test it now:"
+echo "  Done! To test immediately:"
 echo "    cd /opt/t-and-r"
-echo "    python3 daily_roundup.py"
+echo "    ANTHROPIC_API_KEY=xxx RESEND_API_KEY=xxx python3 daily_roundup.py"
 echo ""
-echo "  The roundup will be saved to:"
-echo "    /opt/t-and-r/roundups/latest.md"
-echo ""
-echo "  Cron runs daily at 6 AM EST"
+echo "  Watch cron output:"
+echo "    tail -f /opt/t-and-r/roundups/cron.log"
 echo "=================================="

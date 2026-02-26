@@ -27,7 +27,11 @@ from dateutil import parser as dateparser
 # ============================================================
 
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
-MODEL = "claude-sonnet-4-5-20250929"
+ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
+RESEND_API_KEY    = os.getenv("RESEND_API_KEY", "")
+ROUNDUP_TO        = os.getenv("ROUNDUP_TO",   "alikoudis@likoudislegacy.com")
+ROUNDUP_FROM      = os.getenv("ROUNDUP_FROM", "T&R Briefing <briefing@traditionandrenewal.com>")
+MODEL = "claude-sonnet-4-6"
 
 # Your 10 sections with keywords for classification
 SECTIONS = {
@@ -295,22 +299,128 @@ def generate_roundup_from_keywords(articles):
     return output
 
 
+
+# ============================================================
+# EMAIL DELIVERY
+# ============================================================
+
+def markdown_to_html(md):
+    """Convert markdown roundup to styled HTML email body."""
+    import re
+    lines = md.split("\n")
+    html_lines = []
+    in_ul = False
+
+    for line in lines:
+        if line.startswith("# "):
+            if in_ul: html_lines.append("</ul>"); in_ul = False
+            html_lines.append(
+                f'<h1 style="font-family:Georgia,serif;color:#722F37;margin:0 0 .5rem">{line[2:]}</h1>'
+            )
+        elif line.startswith("## "):
+            if in_ul: html_lines.append("</ul>"); in_ul = False
+            html_lines.append(
+                f'<h2 style="font-family:Georgia,serif;color:#722F37;border-bottom:1px solid #C9A962;'
+                f'padding-bottom:.3rem;margin:1.5rem 0 .5rem">{line[3:]}</h2>'
+            )
+        elif line.startswith("### "):
+            if in_ul: html_lines.append("</ul>"); in_ul = False
+            html_lines.append(
+                f'<h3 style="font-family:Georgia,serif;color:#722F37;margin:1rem 0 .4rem">{line[4:]}</h3>'
+            )
+        elif line.startswith("- ") or line.startswith("* "):
+            if not in_ul:
+                html_lines.append('<ul style="padding-left:1.25rem;margin:.5rem 0">')
+                in_ul = True
+            item = line[2:]
+            item = re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', item)
+            item = re.sub(r'\[(.+?)\]\((.+?)\)', r'<a href="\2" style="color:#C9A962">\1</a>', item)
+            html_lines.append(f'<li style="margin:.4rem 0;line-height:1.6">{item}</li>')
+        elif line.startswith("*") and line.endswith("*") and not line.startswith("**"):
+            if in_ul: html_lines.append("</ul>"); in_ul = False
+            inner = line.strip("*")
+            html_lines.append(f'<p style="font-style:italic;color:#666;margin:.5rem 0">{inner}</p>')
+        elif line.strip() == "---":
+            if in_ul: html_lines.append("</ul>"); in_ul = False
+            html_lines.append('<hr style="border:none;border-top:1px solid #C9A962;margin:1.5rem 0">')
+        elif line.strip():
+            if in_ul: html_lines.append("</ul>"); in_ul = False
+            line = re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', line)
+            line = re.sub(r'\[(.+?)\]\((.+?)\)', r'<a href="\2" style="color:#C9A962">\1</a>', line)
+            html_lines.append(f'<p style="margin:.5rem 0;line-height:1.7">{line}</p>')
+        else:
+            if in_ul: html_lines.append("</ul>"); in_ul = False
+
+    if in_ul:
+        html_lines.append("</ul>")
+
+    body = "\n".join(html_lines)
+    return (
+        '<!DOCTYPE html><html><body style="font-family:Georgia,serif;max-width:680px;'
+        'margin:0 auto;padding:2rem;color:#3A3A3A;background:#FAF8F5">'
+        '<div style="text-align:center;border-bottom:2px solid #C9A962;padding-bottom:1rem;margin-bottom:1.5rem">'
+        '<p style="font-family:sans-serif;font-size:.75rem;letter-spacing:.2em;text-transform:uppercase;'
+        'color:#A68A4B;margin:0">Tradition &amp; Renewal</p></div>'
+        + body +
+        '<div style="text-align:center;margin-top:2rem;padding-top:1rem;border-top:1px solid #C9A962;'
+        'font-family:sans-serif;font-size:.7rem;color:#999">'
+        '<a href="https://traditionandrenewal.substack.com" style="color:#C9A962">Substack</a>'
+        ' &nbsp;·&nbsp; '
+        '<a href="https://andrewlikoudis.com" style="color:#C9A962">andrewlikoudis.com</a>'
+        '</div></body></html>'
+    )
+
+
+def send_via_resend(content):
+    """Deliver the roundup via Resend."""
+    if not RESEND_API_KEY:
+        print("  ⚠ No RESEND_API_KEY set — skipping email delivery")
+        return False
+
+    today_str = datetime.now().strftime("%A, %B %d, %Y")
+    subject   = f"T&R Daily Briefing — {today_str}"
+
+    try:
+        resp = requests.post(
+            "https://api.resend.com/emails",
+            headers={
+                "Authorization": f"Bearer {RESEND_API_KEY}",
+                "Content-Type": "application/json",
+            },
+            json={
+                "from":    ROUNDUP_FROM,
+                "to":      [ROUNDUP_TO],
+                "subject": subject,
+                "html":    markdown_to_html(content),
+            },
+            timeout=30,
+        )
+        if resp.status_code in (200, 201):
+            print(f"  ✓ Email sent via Resend (id: {resp.json().get('id','?')}) → {ROUNDUP_TO}")
+            return True
+        else:
+            print(f"  ✗ Resend error {resp.status_code}: {resp.text}")
+            return False
+    except Exception as e:
+        print(f"  ✗ Resend exception: {e}")
+        return False
+
+
 def save_roundup(content):
-    """Save the roundup to file and optionally email/post."""
+    """Save the roundup to file and deliver via email."""
     today = datetime.now().strftime("%Y-%m-%d")
-    
-    # Save to file
+
     os.makedirs("roundups", exist_ok=True)
     filepath = f"roundups/briefing_{today}.md"
     with open(filepath, "w") as f:
         f.write(content)
     print(f"  ✓ Saved to {filepath}")
-    
-    # Save latest
+
     with open("roundups/latest.md", "w") as f:
         f.write(content)
     print(f"  ✓ Saved to roundups/latest.md")
-    
+
+    send_via_resend(content)
     return filepath
 
 
@@ -323,19 +433,19 @@ if __name__ == "__main__":
     print(f"  {datetime.now().strftime('%A, %B %d, %Y at %I:%M %p')}")
     print("=" * 55)
     print()
-    
+
     print("1. Fetching RSS feeds...")
     articles = fetch_feeds(hours_back=24)
-    
+
     print("2. Pre-classifying with keywords...")
     articles = classify_with_keywords(articles)
-    
+
     print("3. Generating roundup with Claude...")
     roundup = generate_roundup_with_claude(articles)
-    
-    print("4. Saving...")
+
+    print("4. Saving and delivering...")
     filepath = save_roundup(roundup)
-    
+
     print()
     print("=" * 55)
     print("  Done! Check roundups/latest.md")
