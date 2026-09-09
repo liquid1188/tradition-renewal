@@ -299,6 +299,11 @@
         .latest-card:hover { transform: translateY(-3px); box-shadow: 0 12px 30px -10px rgba(0,0,0,.12); }
         .latest-card a { text-decoration: none; color: inherit; display: flex; flex-direction: column; height: 100%; }
         .latest-card-body { padding: 1.25rem 1.25rem 1rem; flex: 1; display: flex; flex-direction: column; }
+        .latest-card-cover { display:block; width:100%; aspect-ratio: 16/9; object-fit: cover; background: var(--cream, #f4efe4); border-bottom: 1px solid var(--border); }
+        .latest-card-paid { display:inline-block; margin-left:.4rem; font-size:.55rem; letter-spacing:.1em; color:#801824; }
+        .latest-card.is-hidden { display:none; }
+        @media (max-width: 800px) { .latest-grid { grid-template-columns: 1fr 1fr; } .latest-loading { grid-column: span 2; } }
+        @media (max-width: 520px) { .latest-grid { grid-template-columns: 1fr; } .latest-loading { grid-column: span 1; } }
         .latest-card-section {
             font-family: 'Lato', sans-serif; font-size: .6rem; letter-spacing: .12em;
             text-transform: uppercase; color: var(--gold-dark); margin-bottom: .4rem;
@@ -368,7 +373,7 @@
             <span></span><span></span><span></span>
         </div>
         <ul class="nav-links">
-            <li><a href="#latest">Latest</a></li>
+            <li><a href="#latest">Essays</a></li>
             <li><a href="#sections">Sections</a></li>
             <li><a href="#about">About</a></li>
             <li><a href="#schedule">Schedule</a></li>
@@ -403,14 +408,15 @@
 <section class="latest-posts" id="latest">
     <div class="latest-inner">
         <div class="sections-header fade-in">
-            <h2>Latest Posts</h2>
-            <p>Recent essays from the newsletter.</p>
+            <h2>From the Newsletter</h2>
+            <p id="latestCount">Every essay published on Substack, newest first.</p>
         </div>
         <div class="latest-grid" id="latestGrid">
-            <div class="latest-loading" id="latestLoading">Loading recent posts…</div>
+            <div class="latest-loading" id="latestLoading">Loading posts…</div>
         </div>
         <div style="text-align:center;margin-top:1.5rem">
-            <a href="https://traditionandrenewal.substack.com/archive" class="btn-secondary" target="_blank" style="font-size:.75rem">View Full Archive on Substack →</a>
+            <button class="btn-secondary" id="latestMore" type="button" style="font-size:.75rem;display:none;cursor:pointer">Show all posts</button>
+            <a href="https://traditionandrenewal.substack.com/archive" class="btn-secondary" target="_blank" style="font-size:.75rem;margin-left:.5rem">Read on Substack →</a>
         </div>
     </div>
 </section>
@@ -601,34 +607,43 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
     });
 });
 
-// Fetch Substack RSS
+// Posts come from posts.json, refreshed from Substack every six hours by a GitHub Action
 (async function() {
     const grid = document.getElementById('latestGrid');
     const loading = document.getElementById('latestLoading');
+    const more = document.getElementById('latestMore');
+    const count = document.getElementById('latestCount');
+    const INITIAL = 9;
+    const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
     try {
-        const res = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Ftraditionandrenewal.substack.com%2Ffeed&count=6');
-        const data = await res.json();
-        if (data.status === 'ok' && data.items && data.items.length > 0) {
-            loading.remove();
-            data.items.slice(0, 6).forEach(item => {
-                const date = new Date(item.pubDate);
-                const dateStr = date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-                const excerpt = item.description
-                    ? item.description.replace(/<[^>]*>/g, '').substring(0, 140).trim() + '…'
-                    : '';
-                const card = document.createElement('div');
-                card.className = 'latest-card fade-in visible';
-                card.innerHTML = `<a href="${item.link}" target="_blank">
-                    <div class="latest-card-body">
-                        <div class="latest-card-title">${item.title}</div>
-                        <div class="latest-card-excerpt">${excerpt}</div>
-                        <div class="latest-card-date">${dateStr}</div>
-                    </div>
-                </a>`;
-                grid.appendChild(card);
+        const res = await fetch('posts.json', { cache: 'no-cache' });
+        const posts = await res.json();
+        if (!posts.length) throw new Error('empty');
+        loading.remove();
+        count.textContent = posts.length + ' essays published on Substack, newest first.';
+        posts.forEach((p, i) => {
+            const d = new Date(p.date + 'T12:00:00');
+            const dateStr = d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+            const card = document.createElement('div');
+            card.className = 'latest-card fade-in visible' + (i >= INITIAL ? ' is-hidden' : '');
+            card.innerHTML = `<a href="${esc(p.url)}" target="_blank" rel="noopener">
+                ${p.cover ? `<img class="latest-card-cover" src="${esc(p.cover)}" alt="" loading="lazy" decoding="async">` : ''}
+                <div class="latest-card-body">
+                    <div class="latest-card-section">${esc(p.section || 'Tradition & Renewal')}${p.paid ? '<span class="latest-card-paid">Paid</span>' : ''}</div>
+                    <div class="latest-card-title">${esc(p.title)}</div>
+                    <div class="latest-card-excerpt">${esc(p.excerpt)}</div>
+                    <div class="latest-card-date">${dateStr}</div>
+                </div>
+            </a>`;
+            grid.appendChild(card);
+        });
+        if (posts.length > INITIAL) {
+            more.style.display = 'inline-block';
+            more.textContent = 'Show all ' + posts.length + ' posts';
+            more.addEventListener('click', () => {
+                grid.querySelectorAll('.is-hidden').forEach(c => c.classList.remove('is-hidden'));
+                more.style.display = 'none';
             });
-        } else {
-            loading.textContent = 'Visit the archive on Substack →';
         }
     } catch(e) {
         loading.textContent = 'Visit the archive on Substack →';
