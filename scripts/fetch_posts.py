@@ -1,49 +1,105 @@
 #!/usr/bin/env python3
 """Pull every published post from the Tradition & Renewal Substack into posts.json.
-Uses Substack's public archive API (the RSS feed only carries the newest few)."""
+
+Order of attempts:
+1. Substack's archive API (full history).
+2. The RSS feed (newest ~20 posts), merged into the existing posts.json so older posts are kept.
+If Substack refuses both (it blocks GitHub's runner IPs with 403), keep posts.json as is,
+emit a warning, and exit 0 so the workflow doesn't fail and email on every run.
+The droplet cron (scripts/droplet_refresh.sh) is the reliable refresher."""
 import json, re, sys, urllib.request, html
+import xml.etree.ElementTree as ET
 
 PUB = "https://traditionandrenewal.substack.com"
 OUT = "posts.json"
+HEADERS = {
+    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
+                  "(KHTML, like Gecko) Chrome/129.0 Safari/537.36",
+    "Accept": "application/json, application/rss+xml, text/xml, */*",
+}
 
-def get(url):
-    req = urllib.request.Request(url, headers={"User-Agent": "tradition-renewal-site/1.0"})
+def fetch(url):
+    req = urllib.request.Request(url, headers=HEADERS)
     with urllib.request.urlopen(req, timeout=30) as r:
-        return json.load(r)
+        return r.read()
 
-def excerpt(p):
-    t = p.get("subtitle") or p.get("description") or p.get("truncated_body_text") or ""
-    t = html.unescape(re.sub(r"<[^>]+>", " ", t))
+def clean(t, n=200):
+    t = html.unescape(re.sub(r"<[^>]+>", " ", t or ""))
     t = re.sub(r"\s+", " ", t).strip()
-    return t[:200].rstrip() + ("…" if len(t) > 200 else "")
+    return t[:n].rstrip() + ("…" if len(t) > n else "")
 
-posts, offset, limit = [], 0, 50
-while True:
-    batch = get(f"{PUB}/api/v1/archive?sort=new&offset={offset}&limit={limit}")
-    if not batch:
-        break
-    for p in batch:
-        if p.get("type") not in ("newsletter", "podcast", "thread", None):
-            continue
-        posts.append({
-            "title": p.get("title", "").strip(),
-            "excerpt": excerpt(p),
-            "url": p.get("canonical_url") or f"{PUB}/p/{p.get('slug')}",
-            "date": (p.get("post_date") or "")[:10],
-            "section": p.get("section_name") or "",
-            "cover": p.get("cover_image") or "",
-            "paid": p.get("audience") == "only_paid",
-            "type": p.get("type") or "newsletter",
-        })
-    if len(batch) < limit:
-        break
-    offset += limit
+def from_archive():
+    posts, seen, offset, limit = [], set(), 0, 50
+    while True:
+        batch = json.loads(fetch(f"{PUB}/api/v1/archive?sort=new&offset={offset}&limit={limit}"))
+        if not batch:
+            break
+        for p in batch:
+            if p.get("type") not in ("newsletter", "podcast", "thread", None):
+                continue
+            url = p.get("canonical_url") or f"{PUB}/p/{p.get('slug')}"
+            if url in seen:
+                continue
+            seen.add(url)
+            posts.append({
+                "title": (p.get("title") or "").strip(),
+                "excerpt": clean(p.get("subtitle") or p.get("description") or p.get("truncated_body_text")),
+                "url": url,
+                "date": (p.get("post_date") or "")[:10],
+                "section": p.get("section_name") or "",
+                "cover": p.get("cover_image") or "",
+                "paid": p.get("audience") == "only_paid",
+                "type": p.get("type") or "newsletter",
+            })
+        # Substack caps each page below the requested limit, so page until an empty batch
+        offset += len(batch)
+    return posts
 
-posts.sort(key=lambda x: x["date"], reverse=True)
+def from_rss(old):
+    from email.utils import parsedate_to_datetime
+    root = ET.fromstring(fetch(f"{PUB}/feed"))
+    known = {p["url"]: p for p in (old or [])}
+    for it in root.iter("item"):
+        url = (it.findtext("link") or "").strip()
+        enc = it.find("enclosure")
+        date = ""
+        try:
+            date = parsedate_to_datetime(it.findtext("pubDate")).strftime("%Y-%m-%d")
+        except Exception:
+            pass
+        prev = known.get(url, {})
+        known[url] = {
+            "title": (it.findtext("title") or "").strip(),
+            "excerpt": clean(it.findtext("description")) or prev.get("excerpt", ""),
+            "url": url,
+            "date": date or prev.get("date", ""),
+            "section": prev.get("section", ""),
+            "cover": (enc.get("url") if enc is not None else "") or prev.get("cover", ""),
+            "paid": prev.get("paid", False),
+            "type": prev.get("type", "newsletter"),
+        }
+    return list(known.values())
+
 try:
     old = json.load(open(OUT))
 except Exception:
     old = None
+
+posts = None
+for name, fn in (("archive API", from_archive), ("RSS feed", lambda: from_rss(old))):
+    try:
+        posts = fn()
+        if posts:
+            print(f"fetched {len(posts)} posts via {name}")
+            break
+    except Exception as e:
+        print(f"{name} failed: {e}")
+
+if not posts:
+    print("::warning::Substack refused the request from this runner; posts.json left unchanged")
+    sys.exit(0)
+
+posts.sort(key=lambda x: x["date"], reverse=True)
 if old == posts:
     print(f"posts.json unchanged ({len(posts)} posts)")
     sys.exit(0)

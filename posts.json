@@ -1,5 +1,55 @@
 [
  {
+  "title": "On Writing, the Church, and Christian Unity",
+  "excerpt": "Part two of my interview with Mark Wilson, the Catholic Bard at Patheos",
+  "url": "https://traditionandrenewal.substack.com/p/on-writing-the-church-and-christian",
+  "date": "2026-10-05",
+  "section": "Editor's Desk",
+  "cover": "https://substack-post-media.s3.amazonaws.com/public/images/fa968171-1a2c-4223-a30c-fb6a6ff9c918_1434x758.png",
+  "paid": false,
+  "type": "newsletter"
+ },
+ {
+  "title": "The Death Penalty and Doctrinal Development",
+  "excerpt": "A guest post by Robert Fastiggi, PhD",
+  "url": "https://traditionandrenewal.substack.com/p/the-death-penalty-and-doctrinal-development",
+  "date": "2026-10-04",
+  "section": "",
+  "cover": "https://substackcdn.com/image/fetch/$s_!Hh-r!,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F4d004a60-87ad-41ac-825a-99bf0c403979_320x445.webp",
+  "paid": false,
+  "type": "newsletter"
+ },
+ {
+  "title": "How I Came Back",
+  "excerpt": "Atheism, the New Age, and Returning to Rome",
+  "url": "https://traditionandrenewal.substack.com/p/how-i-came-back",
+  "date": "2026-09-25",
+  "section": "Editor's Desk",
+  "cover": "https://substackcdn.com/image/fetch/$s_!FMSb!,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F1c223a7c-0c05-4b96-af09-add596894891_3840x2509.avif",
+  "paid": false,
+  "type": "newsletter"
+ },
+ {
+  "title": "Before There Was Christendom",
+  "excerpt": "What the early Church understood about evangelizing a world it did not control",
+  "url": "https://traditionandrenewal.substack.com/p/before-there-was-christendom",
+  "date": "2026-09-24",
+  "section": "Nature & Grace",
+  "cover": "https://substackcdn.com/image/fetch/$s_!xPxN!,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F5513d452-4652-43a6-9a60-e20aeebd86a9_2000x1121.webp",
+  "paid": true,
+  "type": "newsletter"
+ },
+ {
+  "title": "Tolkien & Communion",
+  "excerpt": "No One Saves Middle-earth Alone",
+  "url": "https://traditionandrenewal.substack.com/p/tolkien-and-communion",
+  "date": "2026-09-17",
+  "section": "Nature & Grace",
+  "cover": "https://substackcdn.com/image/fetch/$s_!st_i!,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F3c4fdaf5-df60-4f59-8ac3-ac55cc2eaab8_1600x994.webp",
+  "paid": false,
+  "type": "newsletter"
+ },
+ {
   "title": "A Chapel in the Rain",
   "excerpt": "My reversion story, now in Polish",
   "url": "https://traditionandrenewal.substack.com/p/a-chapel-in-the-rain",
@@ -227,6 +277,16 @@
   "section": "",
   "cover": "",
   "paid": false,
+  "type": "newsletter"
+ },
+ {
+  "title": "Test",
+  "excerpt": "",
+  "url": "https://traditionandrenewal.substack.com/p/test",
+  "date": "2025-08-02",
+  "section": "",
+  "cover": "",
+  "paid": true,
   "type": "newsletter"
  }
 ]
