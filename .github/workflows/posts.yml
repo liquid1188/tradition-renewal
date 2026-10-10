@@ -1,7 +1,8 @@
 name: Refresh Substack posts
-# Substack blocks GitHub runner IPs (403), so the scheduled refresh runs on the droplet
-# (scripts/droplet_refresh.sh). This workflow stays for manual runs and script changes.
+# Substack blocks GitHub runner IPs (403); fetch_posts.py retries through r.jina.ai.
 on:
+  schedule:
+    - cron: "17 */6 * * *"
   workflow_dispatch:
   push:
     paths: [scripts/fetch_posts.py]

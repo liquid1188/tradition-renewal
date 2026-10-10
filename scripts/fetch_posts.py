@@ -6,8 +6,8 @@ Order of attempts:
 2. The RSS feed (newest ~20 posts), merged into the existing posts.json so older posts are kept.
 If Substack refuses both (it blocks GitHub's runner IPs with 403), keep posts.json as is,
 emit a warning, and exit 0 so the workflow doesn't fail and email on every run.
-The droplet cron (scripts/droplet_refresh.sh) is the reliable refresher."""
-import json, re, sys, urllib.request, html
+If Substack blocks the runner, requests are retried through the r.jina.ai reader."""
+import json, re, sys, urllib.request, urllib.error, html
 import xml.etree.ElementTree as ET
 
 PUB = "https://traditionandrenewal.substack.com"
@@ -19,8 +19,19 @@ HEADERS = {
 }
 
 def fetch(url):
+    """Try Substack directly; on a block (403/429), retry through the r.jina.ai reader,
+    which fetches from its own servers and returns the raw response body."""
     req = urllib.request.Request(url, headers=HEADERS)
-    with urllib.request.urlopen(req, timeout=30) as r:
+    try:
+        with urllib.request.urlopen(req, timeout=30) as r:
+            return r.read()
+    except urllib.error.HTTPError as e:
+        if e.code not in (403, 429):
+            raise
+        print(f"direct fetch got {e.code}, retrying via r.jina.ai")
+    req = urllib.request.Request("https://r.jina.ai/" + url,
+                                 headers={"X-Return-Format": "text"})
+    with urllib.request.urlopen(req, timeout=60) as r:
         return r.read()
 
 def clean(t, n=200):
